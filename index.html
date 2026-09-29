@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Manajemen Barang Keluar & Masuk</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="stylee.css">
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Header / Navbar -->
+    <header class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm">
+                    <i class="fa-solid fa-boxes-stacked text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">Inventaris & Logistik</h1>
+                    <p class="text-xs text-indigo-100">Sistem Pelacakan Barang Keluar Masuk</p>
+                </div>
+            </div>
+            <!-- Navigation Tabs -->
+            <nav class="flex bg-indigo-700/60 p-1 rounded-xl backdrop-blur-md border border-indigo-500/30">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-white text-indigo-600 shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </button>
+                <button onclick="switchTab('logs')" id="nav-logs" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-list"></i> Log Barang Selesai
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- TAB 1: DASHBOARD / UTAMA -->
+        <section id="tab-dashboard" class="space-y-6">
+            
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Total Barang</p>
+                        <h3 id="stat-total" class="text-xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-spinner"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Dalam Proses</p>
+                        <h3 id="stat-process" class="text-xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-water"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Dicuci / Packing</p>
+                        <h3 id="stat-wash-pack" class="text-xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Selesai</p>
+                        <h3 id="stat-completed" class="text-xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action & Filter Bar -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="relative w-full md:w-80">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="searchInput" oninput="filterItems()" placeholder="Cari nama barang, kode, atau penerima..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+                </div>
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <select id="filterStatus" onchange="filterItems()" class="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Semua Status</option>
+                        <option value="Masuk">Masuk</option>
+                        <option value="Sedang Dicuci">Sedang Dicuci</option>
+                        <option value="Proses Kirim">Proses Kirim</option>
+                        <option value="Packing">Packing</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                    <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-md shadow-indigo-100 flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-plus"></i> Tambah Barang
+                    </button>
+                </div>
+            </div>
+
+            <!-- Items Table / Cards Grid -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-list text-indigo-600"></i> Daftar Barang Keluar Masuk
+                    </h2>
+                    <span id="itemCountBadge" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">0 Item</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100">
+                                <th class="py-3 px-6 font-semibold">Barang</th>
+                                <th class="py-3 px-6 font-semibold">Kategori / Ket</th>
+                                <th class="py-3 px-6 font-semibold">Jumlah</th>
+                                <th class="py-3 px-6 font-semibold">Tanggal Masuk</th>
+                                <th class="py-3 px-6 font-semibold">Status Proses</th>
+                                <th class="py-3 px-6 font-semibold text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden py-12 text-center">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <p class="text-slate-600 font-medium">Belum ada data barang.</p>
+                    <p class="text-xs text-slate-400 mt-1">Klik tombol "Tambah Barang" untuk mulai mencatat.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: LOG BARANG SELESAI -->
+        <section id="tab-logs" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-emerald-600"></i> Arsip Log Barang Selesai
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Daftar lengkap seluruh barang yang telah mencapai status selesai beserta tanggal pencatatan.</p>
+                </div>
+                <div class="relative w-full sm:w-72">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="searchLogInput" oninput="filterLogs()" placeholder="Cari log barang selesai..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all">
+                </div>
+            </div>
+
+            <!-- Log Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100">
+                                <th class="py-3 px-6 font-semibold">No</th>
+                                <th class="py-3 px-6 font-semibold">Nama Barang</th>
+                                <th class="py-3 px-6 font-semibold">Jumlah</th>
+                                <th class="py-3 px-6 font-semibold">Tanggal Masuk Awal</th>
+                                <th class="py-3 px-6 font-semibold">Tanggal Selesai</th>
+                                <th class="py-3 px-6 font-semibold">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Dynamic Logs -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Empty Log State -->
+                <div id="emptyLogState" class="hidden py-12 text-center">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                        <i class="fa-solid fa-box-archive"></i>
+                    </div>
+                    <p class="text-slate-600 font-medium">Belum ada log barang selesai.</p>
+                    <p class="text-xs text-slate-400 mt-1">Barang dengan status "Selesai" akan otomatis tercatat di halaman ini.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Form Tambah / Edit Barang -->
+    <div id="itemModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 id="modalTitle" class="font-bold text-slate-800">Tambah Barang Baru</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-200 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="itemForm" onsubmit="saveItem(event)" class="p-6 space-y-4">
+                <input type="hidden" id="itemId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nama Barang</label>
+                    <input type="text" id="itemName" required placeholder="Contoh: Kain Katun Premium" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Jumlah</label>
+                        <input type="number" id="itemQty" min="1" required placeholder="10" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Tanggal Masuk</label>
+                        <input type="date" id="itemDate" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Status Proses</label>
+                    <select id="itemStatus" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white">
+                        <option value="Masuk">Masuk</option>
+                        <option value="Sedang Dicuci">Sedang Dicuci</option>
+                        <option value="Proses Kirim">Proses Kirim</option>
+                        <option value="Packing">Packing</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Keterangan / Catatan</label>
+                    <textarea id="itemDesc" rows="2" placeholder="Catatan tambahan (opsional)..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium shadow-md shadow-indigo-100 transition-all">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 text-sm">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">Aksi berhasil!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs text-slate-400 mt-auto">
+        <p>&copy; 2026 Sistem Inventaris Barang Keluar Masuk. All rights reserved.</p>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="javascript.js"></script>
+</body>
+</html>
