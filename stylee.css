@@ -1,0 +1,44 @@
+/* Menggunakan font Inter secara menyeluruh */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Animasi halus untuk transisi tab dan modal */
+.tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Kustomisasi scrollbar agar lebih estetis */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Transisi mulus pada tombol dan card */
+button, input, select, textarea {
+    transition: all 0.2s ease-in-out;
+}
